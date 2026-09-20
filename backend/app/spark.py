@@ -1,18 +1,35 @@
-"""Conexión a Apache Spark (una sola SparkSession compartida por la API)."""
-import threading
+"""Conexión a Apache Spark (una sola SparkSession compartida por la API).
 
-from pyspark.sql import SparkSession
+La importación de pyspark es PEREZOSA a propósito: si pyspark o Java no están
+disponibles, la API debe seguir arrancando y el login debe funcionar igual.
+El motivo del fallo se ve en /api/health y en la pantalla de Configuración.
+"""
+from __future__ import annotations
+
+import threading
+from typing import TYPE_CHECKING, Any
 
 from .config import settings
 
+if TYPE_CHECKING:  # solo para el editor / type checker, no se ejecuta
+    from pyspark.sql import SparkSession
+
 _lock = threading.Lock()
-_spark: SparkSession | None = None
+_spark: Any = None
 
 
-def get_spark() -> SparkSession:
+def get_spark() -> "SparkSession":
     global _spark
     with _lock:
         if _spark is None:
+            try:
+                from pyspark.sql import SparkSession
+            except Exception as exc:  # noqa: BLE001
+                raise RuntimeError(
+                    "No se pudo importar pyspark. Instala las dependencias con "
+                    "'pip install -r requirements.txt' y verifica Java 17 o 21."
+                ) from exc
+
             builder = (
                 SparkSession.builder.appName(settings.spark_app_name)
                 .master(settings.spark_master)
@@ -32,7 +49,10 @@ def stop_spark() -> None:
     global _spark
     with _lock:
         if _spark is not None:
-            _spark.stop()
+            try:
+                _spark.stop()
+            except Exception:  # noqa: BLE001
+                pass
             _spark = None
 
 

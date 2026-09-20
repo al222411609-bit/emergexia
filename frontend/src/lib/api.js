@@ -27,9 +27,11 @@ export async function api(path, { method = 'GET', body } = {}) {
     if (typeof data?.detail === 'string') throw new Error(data.detail)
     if (Array.isArray(data?.detail)) throw new Error('Revisa los datos del formulario.')
     if (res.status >= 500) {
+      // Si la respuesta no trae JSON, el error lo generó el proxy (Vite/nginx),
+      // no el backend: casi siempre significa que el backend no está en marcha.
       throw new Error(
-        `El backend no respondió (código ${res.status}). Probablemente no está corriendo en el puerto 8000. ` +
-        'En la carpeta backend ejecuta: python diagnostico.py',
+        `No se pudo llegar al backend (código ${res.status}). Revisa que esté corriendo en el puerto 8000: ` +
+        'en la carpeta backend ejecuta "python diagnostico.py" y mira la terminal de uvicorn.',
       )
     }
     throw new Error('Ocurrió un error inesperado.')

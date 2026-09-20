@@ -1,36 +1,41 @@
 """Tablas de Emergexia guardadas como Parquet y procesadas con Spark."""
 from datetime import datetime, timezone
 
-from pyspark.sql import functions as F
-from pyspark.sql.types import IntegerType, StringType, StructField, StructType
+from functools import lru_cache
 
 from .config import settings
 from .spark import get_spark
 
-
-def _schema(*fields: tuple[str, type]) -> StructType:
-    return StructType([StructField(n, t(), True) for n, t in fields])
-
-
-SCHEMAS: dict[str, StructType] = {
-    "doctors": _schema(
-        ("id", IntegerType), ("nombre", StringType), ("especialidad", StringType),
-        ("telefono", StringType), ("estado", StringType),
-    ),
-    "ambulances": _schema(
-        ("id", IntegerType), ("placa", StringType), ("tipo", StringType),
-        ("conductor", StringType), ("estado", StringType),
-    ),
-    "emergencies": _schema(
-        ("id", IntegerType), ("folio", StringType), ("descripcion", StringType),
-        ("prioridad", StringType), ("estado", StringType), ("ambulancia", StringType),
-        ("creado", StringType),
-    ),
-    "operators": _schema(
-        ("id", IntegerType), ("nombre", StringType), ("turno", StringType),
-        ("extension", StringType), ("estado", StringType),
-    ),
+# Esquemas como datos simples: así este módulo se puede importar aunque
+# pyspark no esté instalado (los tipos reales se construyen al usarlos).
+COLUMNS: dict[str, list[tuple[str, str]]] = {
+    "doctors": [
+        ("id", "int"), ("nombre", "str"), ("especialidad", "str"),
+        ("telefono", "str"), ("estado", "str"),
+    ],
+    "ambulances": [
+        ("id", "int"), ("placa", "str"), ("tipo", "str"),
+        ("conductor", "str"), ("estado", "str"),
+    ],
+    "emergencies": [
+        ("id", "int"), ("folio", "str"), ("descripcion", "str"),
+        ("prioridad", "str"), ("estado", "str"), ("ambulancia", "str"),
+        ("creado", "str"),
+    ],
+    "operators": [
+        ("id", "int"), ("nombre", "str"), ("turno", "str"),
+        ("extension", "str"), ("estado", "str"),
+    ],
 }
+
+
+@lru_cache(maxsize=None)
+def schema(name: str):
+    """Construye el StructType de una tabla (importa pyspark solo al llamarse)."""
+    from pyspark.sql.types import IntegerType, StringType, StructField, StructType
+
+    kinds = {"int": IntegerType, "str": StringType}
+    return StructType([StructField(n, kinds[k](), True) for n, k in COLUMNS[name]])
 
 
 def _path(name: str) -> str:
@@ -46,11 +51,11 @@ def _exists(name: str) -> bool:
 
 
 def read_table(name: str):
-    return get_spark().read.schema(SCHEMAS[name]).parquet(_path(name))
+    return get_spark().read.schema(schema(name)).parquet(_path(name))
 
 
 def _write(name: str, rows: list[tuple], mode: str = "append") -> None:
-    df = get_spark().createDataFrame(rows, SCHEMAS[name])
+    df = get_spark().createDataFrame(rows, schema(name))
     df.coalesce(1).write.mode(mode).parquet(_path(name))
 
 
@@ -59,6 +64,8 @@ def list_rows(name: str) -> list[dict]:
 
 
 def next_id(name: str) -> int:
+    from pyspark.sql import functions as F
+
     top = read_table(name).agg(F.max("id")).collect()[0][0]
     return (top or 0) + 1
 
@@ -66,7 +73,7 @@ def next_id(name: str) -> int:
 def insert_row(name: str, data: dict) -> dict:
     row_id = next_id(name)
     data = {"id": row_id, **data}
-    fields = [f.name for f in SCHEMAS[name].fields]
+    fields = [n for n, _ in COLUMNS[name]]
     _write(name, [tuple(data.get(f) for f in fields)])
     return data
 
