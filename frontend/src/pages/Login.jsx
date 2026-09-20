@@ -32,7 +32,7 @@ export default function Login() {
         <aside className="login-brand">
           <img className="brand-photo" src={ambulancePhoto} alt="" />
           <div className="brand-tint" aria-hidden="true" />
-          <Heartbeat />
+          <Heartbeat className="brand-ecg" color="#fff" />
           <div className="brand-lockup">
             <Logo size={46} />
             <p>Conectando profesionales,<br />salvando vidas</p>

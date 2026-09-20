@@ -5,13 +5,16 @@ import '@fontsource-variable/inter'
 import './styles/app.css'
 import App from './App.jsx'
 import { AuthProvider } from './lib/auth.jsx'
+import ErrorBoundary from './components/ErrorBoundary.jsx'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </React.StrictMode>,
 )
