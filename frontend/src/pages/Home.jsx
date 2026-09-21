@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Clock, HeartPulse } from 'lucide-react'
-import { api } from '../lib/api.js'
 import { useAuth } from '../lib/auth.jsx'
 import { MODULES } from '../lib/modules.js'
 
@@ -50,31 +49,12 @@ function useNow() {
   return now
 }
 
-/** Conteos en vivo (calculados con Spark en el backend) para las tarjetas de inicio.
- *  Si Spark aún no está listo, simplemente no se muestran; no es un error visible aquí. */
-function useSummary() {
-  const [summary, setSummary] = useState(null)
-  useEffect(() => {
-    let alive = true
-    api('/dashboard/summary').then((d) => { if (alive) setSummary(d) }).catch(() => {})
-    return () => { alive = false }
-  }, [])
-  return summary
-}
-
 export default function Home() {
   const { user } = useAuth()
   const now = useNow()
-  const summary = useSummary()
   const date = new Intl.DateTimeFormat('es-MX', { day: 'numeric', month: 'long', year: 'numeric' }).format(now)
   const time = new Intl.DateTimeFormat('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true }).format(now)
   const firstName = user?.full_name?.split(' ')[0]
-
-  const countFor = (key) => {
-    const bucket = summary?.[key]
-    if (!bucket) return null
-    return Object.values(bucket).reduce((a, b) => a + b, 0)
-  }
 
   return (
     <div className="home">
@@ -85,18 +65,14 @@ export default function Home() {
       </header>
 
       <div className="module-grid">
-        {MODULES.map(({ key, label, description, icon: Icon }) => {
-          const count = countFor(key)
-          return (
-            <Link key={key} to={`/${key}`} className="module-card">
-              <Icon className="module-icon" size={40} strokeWidth={1.7} />
-              <h2>{label}</h2>
-              <p>{description}</p>
-              {count !== null && <span className="module-count">{count} registro{count === 1 ? '' : 's'}</span>}
-              <span className="go" aria-hidden="true"><ArrowRight size={16} /></span>
-            </Link>
-          )
-        })}
+        {MODULES.map(({ key, label, description, icon: Icon }) => (
+          <Link key={key} to={`/${key}`} className="module-card">
+            <Icon className="module-icon" size={40} strokeWidth={1.7} />
+            <h2>{label}</h2>
+            <p>{description}</p>
+            <span className="go" aria-hidden="true"><ArrowRight size={16} /></span>
+          </Link>
+        ))}
       </div>
 
       <footer className="banner">

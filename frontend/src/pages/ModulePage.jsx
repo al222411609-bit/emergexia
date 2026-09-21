@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
-import { Plus, X } from 'lucide-react'
+import { Plus, RefreshCw, X } from 'lucide-react'
 import { api } from '../lib/api.js'
 import { findModule } from '../lib/modules.js'
 
 const slug = (v) => String(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+
+const OLD_BACKEND =
+  'El servidor no confirmó que guardó en MongoDB: seguramente hay una versión ANTIGUA del backend corriendo en el puerto 8000. ' +
+  'Ciérrala (python diagnostico.py te dice cuál) y vuelve a iniciar el backend.'
 
 function emptyForm(fields) {
   return Object.fromEntries(fields.map((f) => [f.key, f.options ? f.options[0] : '']))
@@ -19,6 +23,8 @@ export default function ModulePage() {
 
 function ModuleView({ mod }) {
   const [items, setItems] = useState(null)
+  const [source, setSource] = useState(null)
+  const [notice, setNotice] = useState(null)
   const [error, setError] = useState('')
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState(() => emptyForm(mod.fields))
@@ -27,7 +33,9 @@ function ModuleView({ mod }) {
 
   const load = useCallback(() => {
     setError('')
-    api(`/${mod.key}`).then((d) => setItems(d.items)).catch((e) => setError(e.message))
+    api(`/${mod.key}`)
+      .then((d) => { setItems(d.items); setSource(d.source ?? null) })
+      .catch((e) => setError(e.message))
   }, [mod.key])
 
   useEffect(load, [load])
@@ -39,7 +47,14 @@ function ModuleView({ mod }) {
     try {
       const body = { ...form }
       if (body.ambulancia === '') body.ambulancia = null
-      await api(`/${mod.key}`, { method: 'POST', body })
+      const saved = await api(`/${mod.key}`, { method: 'POST', body })
+      const done = mod.nuevo === 'Nueva' ? 'guardada' : 'guardado'
+      const name = mod.singular.charAt(0).toUpperCase() + mod.singular.slice(1)
+      setNotice(
+        saved.saved_in
+          ? { kind: 'ok', text: `✓ ${name} ${done} en MongoDB (${saved.saved_in}), id ${saved.id}.` }
+          : { kind: 'warn', text: OLD_BACKEND },
+      )
       setOpen(false)
       setForm(emptyForm(mod.fields))
       load()
@@ -57,10 +72,17 @@ function ModuleView({ mod }) {
           <h1>{mod.label}</h1>
           <p>{mod.description}</p>
         </div>
-        <button className="btn-primary compact" onClick={() => setOpen((v) => !v)}>
-          {open ? <X size={16} /> : <Plus size={16} />} {open ? 'Cancelar' : `${mod.nuevo} ${mod.singular}`}
-        </button>
+        <div className="head-actions">
+          <button className="btn-ghost tall" onClick={load} title="Volver a leer los datos de MongoDB">
+            <RefreshCw size={15} /> Actualizar
+          </button>
+          <button className="btn-primary compact" onClick={() => { setNotice(null); setOpen((v) => !v) }}>
+            {open ? <X size={16} /> : <Plus size={16} />} {open ? 'Cancelar' : `${mod.nuevo} ${mod.singular}`}
+          </button>
+        </div>
       </header>
+
+      {notice && <p className={`notice ${notice.kind}`} role="status">{notice.text}</p>}
 
       {open && (
         <form className="panel form-grid" onSubmit={save}>
@@ -87,7 +109,7 @@ function ModuleView({ mod }) {
 
       <div className="panel table-wrap">
         {error && <p className="form-error">{error} <button className="link" onClick={load}>Reintentar</button></p>}
-        {!error && items === null && <p className="muted pad">Consultando datos en Spark…</p>}
+        {!error && items === null && <p className="muted pad">Cargando datos…</p>}
         {!error && items?.length === 0 && (
           <p className="muted pad">Aún no hay registros. Usa “{mod.nuevo} {mod.singular}” para crear el primero.</p>
         )}
@@ -110,6 +132,13 @@ function ModuleView({ mod }) {
               ))}
             </tbody>
           </table>
+        )}
+        {items && (
+          <p className={`source-note ${source ? '' : 'warn'}`}>
+            {source
+              ? `${items.length} registro(s) · leído de MongoDB: ${source}`
+              : '⚠ Este servidor no reporta MongoDB: probablemente es una versión antigua del backend.'}
+          </p>
         )}
       </div>
     </section>

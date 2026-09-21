@@ -1,26 +1,25 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
+from ..analytics import count_by_state
+from ..mongo import mongo_info
+from ..readiness import require_mongo, require_spark
 from ..security import current_username
 from ..spark import spark_info
-from ..tables import count_by
 
-router = APIRouter(prefix="/api", tags=["system"])
-
-
-@router.get("/spark/status")
-def spark_status(_: str = Depends(current_username)):
-    try:
-        return spark_info()
-    except Exception as exc:  # noqa: BLE001
-        raise HTTPException(503, f"No se pudo conectar con Spark: {exc}")
+router = APIRouter(prefix="/api", tags=["system"], dependencies=[Depends(current_username)])
 
 
-@router.get("/dashboard/summary")
-def summary(_: str = Depends(current_username)):
-    """Conteos agregados con Spark (groupBy) para el panel de inicio."""
-    return {
-        "doctores": count_by("doctors", "estado"),
-        "ambulancias": count_by("ambulances", "estado"),
-        "emergencias": count_by("emergencies", "estado"),
-        "operadores": count_by("operators", "estado"),
-    }
+@router.get("/mongo/status", dependencies=[Depends(require_mongo)])
+def mongo_status():
+    return mongo_info()
+
+
+@router.get("/spark/status", dependencies=[Depends(require_spark)])
+def spark_status():
+    return spark_info()
+
+
+@router.get("/dashboard/summary", dependencies=[Depends(require_mongo), Depends(require_spark)])
+def summary():
+    """Conteos por estado: los datos vienen de MongoDB y Spark los agrega (groupBy)."""
+    return count_by_state()

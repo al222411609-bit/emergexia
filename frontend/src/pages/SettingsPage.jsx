@@ -3,22 +3,56 @@ import { RefreshCw } from 'lucide-react'
 import { api } from '../lib/api.js'
 import { useAuth } from '../lib/auth.jsx'
 
-export default function SettingsPage() {
-  const { user } = useAuth()
-  const [spark, setSpark] = useState(null)
+/** Tarjeta que consulta el estado de un servicio (MongoDB o Spark). */
+function ServiceCard({ title, path, rows, note }) {
+  const [info, setInfo] = useState(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
   const check = useCallback(() => {
     setBusy(true)
     setError('')
-    api('/spark/status')
-      .then(setSpark)
-      .catch((e) => { setSpark(null); setError(e.message) })
+    api(path)
+      .then(setInfo)
+      .catch((e) => { setInfo(null); setError(e.message) })
       .finally(() => setBusy(false))
-  }, [])
+  }, [path])
 
   useEffect(check, [check])
+
+  return (
+    <div className="panel">
+      <div className="panel-title-row">
+        <h2 className="panel-title">{title}</h2>
+        <button className="btn-ghost" onClick={check} disabled={busy}>
+          <RefreshCw size={14} className={busy ? 'spin' : ''} /> Verificar
+        </button>
+      </div>
+      {error && <p className="form-error">{error}</p>}
+      {info && (
+        <dl className="kv">
+          <dt>Estado</dt><dd><span className="badge b-activo">Conectado</span></dd>
+          {rows(info).map(([label, value]) => (
+            <FragmentRow key={label} label={label} value={value} />
+          ))}
+        </dl>
+      )}
+      {!info && !error && <p className="muted">{note ?? 'Verificando…'}</p>}
+    </div>
+  )
+}
+
+function FragmentRow({ label, value }) {
+  return (
+    <>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </>
+  )
+}
+
+export default function SettingsPage() {
+  const { user } = useAuth()
 
   return (
     <section className="module-view">
@@ -39,26 +73,28 @@ export default function SettingsPage() {
           </dl>
         </div>
 
-        <div className="panel">
-          <div className="panel-title-row">
-            <h2 className="panel-title">Conexión con Spark</h2>
-            <button className="btn-ghost" onClick={check} disabled={busy}>
-              <RefreshCw size={14} className={busy ? 'spin' : ''} /> Verificar
-            </button>
-          </div>
-          {error && <p className="form-error">{error}</p>}
-          {spark && (
-            <dl className="kv">
-              <dt>Estado</dt><dd><span className="badge b-activo">Conectado</span></dd>
-              <dt>Master</dt><dd>{spark.master}</dd>
-              <dt>Versión</dt><dd>Spark {spark.version}</dd>
-              <dt>Aplicación</dt><dd>{spark.app_name}</dd>
-              <dt>ID de aplicación</dt><dd>{spark.app_id}</dd>
-              <dt>Datos</dt><dd>{spark.data_dir}</dd>
-            </dl>
-          )}
-          {!spark && !error && <p className="muted">Verificando…</p>}
-        </div>
+        <ServiceCard
+          title="Conexión con MongoDB"
+          path="/mongo/status"
+          rows={(i) => [
+            ['Servidor', i.uri],
+            ['Base de datos', i.database],
+            ['Versión', `MongoDB ${i.version}`],
+            ['Colecciones', Object.entries(i.collections).map(([k, v]) => `${k} (${v})`).join(', ') || '—'],
+          ]}
+        />
+
+        <ServiceCard
+          title="Conexión con Spark"
+          path="/spark/status"
+          note="Iniciando Spark (la primera vez tarda unos segundos)…"
+          rows={(i) => [
+            ['Master', i.master],
+            ['Versión', `Spark ${i.version}`],
+            ['Aplicación', i.app_name],
+            ['ID de aplicación', i.app_id],
+          ]}
+        />
       </div>
     </section>
   )

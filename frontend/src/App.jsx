@@ -1,33 +1,25 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './lib/auth.jsx'
 import Layout from './components/Layout.jsx'
-import BrandLoader from './components/BrandLoader.jsx'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
 import ModulePage from './pages/ModulePage.jsx'
 import SettingsPage from './pages/SettingsPage.jsx'
 
 function Protected({ children }) {
-  const { user, loading, connError, retry } = useAuth()
-  if (connError) {
-    return <BrandLoader mode="error" message="No se pudo conectar con el servidor" detail={connError} onRetry={retry} />
-  }
-  if (loading) return <BrandLoader mode="loading" />
+  const { user, loading } = useAuth()
+  if (loading) return <div className="splash">Cargando…</div>
   return user ? children : <Navigate to="/login" replace />
 }
 
 export default function App() {
-  const { user, loading, connError, retry } = useAuth()
-
-  if (connError) {
-    return <BrandLoader mode="error" message="No se pudo conectar con el servidor" detail={connError} onRetry={retry} />
-  }
+  const { user, loading } = useAuth()
 
   return (
     <Routes>
       <Route
         path="/login"
-        element={loading ? <BrandLoader mode="loading" /> : user ? <Navigate to="/" replace /> : <Login />}
+        element={loading ? <div className="splash">Cargando…</div> : user ? <Navigate to="/" replace /> : <Login />}
       />
       <Route element={<Protected><Layout /></Protected>}>
         <Route index element={<Home />} />

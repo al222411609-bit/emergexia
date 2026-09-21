@@ -1,50 +1,71 @@
-"""Arranque perezoso y seguro de Spark: si falla, la API sigue viva y explica por qué."""
+"""Arranque perezoso y seguro de MongoDB y Spark.
+
+Si uno falla, la API sigue viva, explica el motivo (503) y reintenta en la siguiente petición.
+"""
 import logging
+import re
 import threading
 
 from fastapi import HTTPException
 
+from . import dbschema, mongo, repository
+from .config import settings
 from .spark import get_spark
-from .tables import seed_if_empty
 
 log = logging.getLogger("emergexia")
-_lock = threading.Lock()
-_ready = False
-last_error: str | None = None
 
 
 def _short(exc: Exception) -> str:
+    """La línea más útil de un error (la causa 'Caused by' de Java si existe)."""
     text = str(exc).strip() or type(exc).__name__
-    first = next((ln.strip() for ln in text.splitlines() if ln.strip()), type(exc).__name__)
-    return first[:300]
+    lines = [ln.strip() for ln in text.splitlines() if ln.strip()]
+    causes = [ln for ln in lines if ln.startswith("Caused by") or re.match(r"^[\w.$]+(Exception|Error)\b", ln)]
+    return (causes[-1] if causes else (lines[0] if lines else type(exc).__name__))[:300]
 
 
-def is_ready() -> bool:
-    return _ready
+class Service:
+    def __init__(self, name: str, start):
+        self.name = name
+        self._start = start
+        self._lock = threading.Lock()
+        self.ready = False
+        self.last_error: str | None = None
 
-
-def ensure_ready() -> None:
-    """Conecta con Spark y crea las tablas la primera vez. Reintenta si falló antes."""
-    global _ready, last_error
-    if _ready:
-        return
-    with _lock:
-        if _ready:
+    def ensure(self) -> None:
+        if self.ready:
             return
+        with self._lock:
+            if self.ready:
+                return
+            try:
+                self._start()
+                self.ready = True
+                self.last_error = None
+            except Exception as exc:  # noqa: BLE001
+                self.last_error = str(exc) if isinstance(exc, RuntimeError) else f"{type(exc).__name__}: {_short(exc)}"
+                log.exception("No se pudo iniciar %s", self.name)
+                raise
+
+    def require(self) -> None:
+        """Dependencia de FastAPI: 503 con el motivo si el servicio no está disponible."""
         try:
-            get_spark()
-            seed_if_empty()
-            _ready = True
-            last_error = None
-        except Exception as exc:  # noqa: BLE001
-            last_error = f"{type(exc).__name__}: {_short(exc)}"
-            log.exception("No se pudo iniciar Spark / tablas")
-            raise
+            self.ensure()
+        except Exception:  # noqa: BLE001
+            raise HTTPException(503, f"{self.name} no está disponible. {self.last_error}")
 
 
-def require_spark() -> None:
-    """Dependencia de FastAPI: responde 503 con el motivo si Spark no está disponible."""
-    try:
-        ensure_ready()
-    except Exception:  # noqa: BLE001
-        raise HTTPException(503, f"Spark no está disponible. {last_error}")
+def _start_mongo() -> None:
+    mongo.connect()
+    created = dbschema.ensure_schema()      # crea colecciones, validaciones e índices
+    if created:
+        log.info("Colecciones creadas en MongoDB: %s", ", ".join(created))
+    repository.seed_admin()                 # administrador inicial si no hay usuarios
+    if settings.seed_demo_data:
+        repository.seed_demo()
+
+
+mongo_service = Service("MongoDB", _start_mongo)
+spark_service = Service("Spark", get_spark)   # se inicia bajo demanda (tarda unos segundos)
+
+require_mongo = mongo_service.require
+require_spark = spark_service.require

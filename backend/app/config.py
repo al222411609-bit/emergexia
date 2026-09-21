@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from urllib.parse import urlparse
 
 from dotenv import load_dotenv
 
@@ -11,6 +12,14 @@ def _bool(value: str) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "si", "sí"}
 
 
+def _db_from_uri(uri: str) -> str:
+    """Nombre de la base incluido en la URI (…mongodb.net/emergexia?…), si lo hay."""
+    try:
+        return urlparse(uri).path.strip("/")
+    except ValueError:
+        return ""
+
+
 class Settings:
     # Spark
     spark_master: str = os.getenv("SPARK_MASTER", "local[*]")
@@ -20,7 +29,13 @@ class Settings:
     spark_driver_memory: str = os.getenv("SPARK_DRIVER_MEMORY", "1g")
     spark_driver_host: str | None = os.getenv("SPARK_DRIVER_HOST") or None
 
-    # Datos
+    # MongoDB
+    mongo_uri: str = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+    mongo_db: str = os.getenv("MONGO_DB") or _db_from_uri(os.getenv("MONGO_URI", "")) or "emergexia"
+    mongo_timeout_ms: int = int(os.getenv("MONGO_TIMEOUT_MS", "8000"))
+    seed_demo_data: bool = _bool(os.getenv("SEED_DEMO_DATA", "false"))
+
+    # Carpeta de trabajo de Spark (opcional)
     data_dir: str = os.getenv("DATA_DIR", str(BASE_DIR / "data"))
 
     # Seguridad
