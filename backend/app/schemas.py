@@ -9,6 +9,7 @@ class LoginIn(BaseModel):
 
 
 class DoctorIn(BaseModel):
+<<<<<<< HEAD
     nombres: str = Field(min_length=2)
     apellidos: str = Field(min_length=2)
     fecha_nacimiento: str = ""
@@ -23,6 +24,12 @@ class DoctorIn(BaseModel):
     # Foto de referencia (igual que en Operadores): se usa para verificar por
     # reconocimiento facial que es el mismo doctor antes de asignarlo a una emergencia.
     foto: str = Field(min_length=1, description="Foto de referencia en base64 (data URL)")
+=======
+    nombre: str = Field(min_length=2)
+    especialidad: str = Field(min_length=2)
+    telefono: str = ""
+    estado: Literal["Activo", "En guardia", "Descanso"] = "Activo"
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
 
 
 class AmbulanceIn(BaseModel):
@@ -33,6 +40,7 @@ class AmbulanceIn(BaseModel):
 
 
 class EmergencyIn(BaseModel):
+<<<<<<< HEAD
     # Datos del paciente
     paciente_nombre: str = Field(min_length=2)
     paciente_edad: str = ""
@@ -49,6 +57,12 @@ class EmergencyIn(BaseModel):
     operador: str | None = None
     ambulancia: str | None = None
     doctor: str | None = None
+=======
+    descripcion: str = Field(min_length=3)
+    prioridad: Literal["Alta", "Media", "Baja"] = "Media"
+    estado: Literal["Pendiente", "Asignada", "En curso", "Cerrada"] = "Pendiente"
+    ambulancia: str | None = None
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
 
 
 class OperatorIn(BaseModel):
@@ -56,6 +70,7 @@ class OperatorIn(BaseModel):
     turno: Literal["Matutino", "Vespertino", "Nocturno"] = "Matutino"
     extension: str = ""
     estado: Literal["En línea", "Desconectado"] = "En línea"
+<<<<<<< HEAD
     # Foto de referencia (imagen en base64, formato data URL) tomada al registrar
     # al operador. Se usa después para verificar por reconocimiento facial que es
     # el mismo operador antes de asignarlo a una emergencia y antes de que salga
@@ -69,3 +84,5 @@ class VerificacionIn(BaseModel):
     coincide: bool = True
     distancia: float | None = None
     emergencia_folio: str | None = None
+=======
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb

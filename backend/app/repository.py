@@ -87,10 +87,17 @@ def seed_demo() -> None:
     db = get_db()
     samples = {
         "doctors": [
+<<<<<<< HEAD
             {"nombres": "Laura", "apellidos": "Méndez", "nombre": "Laura Méndez", "especialidad": "Medicina de urgencias", "cedula_profesional": "8451203", "celular": "55 1234 5601", "turno": "Matutino", "estado": "Activo"},
             {"nombres": "Carlos", "apellidos": "Ortega", "nombre": "Carlos Ortega", "especialidad": "Cardiología", "cedula_profesional": "8451204", "celular": "55 1234 5602", "turno": "Vespertino", "estado": "Activo"},
             {"nombres": "Sofía", "apellidos": "Ramírez", "nombre": "Sofía Ramírez", "especialidad": "Traumatología", "cedula_profesional": "8451205", "celular": "55 1234 5603", "turno": "Nocturno", "estado": "En guardia"},
             {"nombres": "Andrés", "apellidos": "Villalobos", "nombre": "Andrés Villalobos", "especialidad": "Pediatría", "cedula_profesional": "8451206", "celular": "55 1234 5604", "turno": "Matutino", "estado": "Descanso"},
+=======
+            {"nombre": "Dra. Laura Méndez", "especialidad": "Medicina de urgencias", "telefono": "55 1234 5601", "estado": "Activo"},
+            {"nombre": "Dr. Carlos Ortega", "especialidad": "Cardiología", "telefono": "55 1234 5602", "estado": "Activo"},
+            {"nombre": "Dra. Sofía Ramírez", "especialidad": "Traumatología", "telefono": "55 1234 5603", "estado": "En guardia"},
+            {"nombre": "Dr. Andrés Villalobos", "especialidad": "Pediatría", "telefono": "55 1234 5604", "estado": "Descanso"},
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
         ],
         "ambulances": [
             {"placa": "AMB-101", "tipo": "Avanzada", "conductor": "Jorge Salinas", "estado": "Disponible"},

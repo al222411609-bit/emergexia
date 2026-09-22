@@ -4,8 +4,11 @@ import Layout from './components/Layout.jsx'
 import Login from './pages/Login.jsx'
 import Home from './pages/Home.jsx'
 import ModulePage from './pages/ModulePage.jsx'
+<<<<<<< HEAD
 import ModuleFormPage from './pages/ModuleFormPage.jsx'
 import RecordDetailPage from './pages/RecordDetailPage.jsx'
+=======
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
 import SettingsPage from './pages/SettingsPage.jsx'
 
 function Protected({ children }) {
@@ -26,8 +29,11 @@ export default function App() {
       <Route element={<Protected><Layout /></Protected>}>
         <Route index element={<Home />} />
         <Route path="configuracion" element={<SettingsPage />} />
+<<<<<<< HEAD
         <Route path=":module/nuevo" element={<ModuleFormPage />} />
         <Route path=":module/:id" element={<RecordDetailPage />} />
+=======
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
         <Route path=":module" element={<ModulePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { ChevronDown, LogOut, Search, UserRound } from 'lucide-react'
 import { Logo } from './Logo.jsx'
+<<<<<<< HEAD
 import ClockWidget from './ClockWidget.jsx'
+=======
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
 import { useAuth } from '../lib/auth.jsx'
 import { HOME, MODULES } from '../lib/modules.js'
 
@@ -83,8 +86,11 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+<<<<<<< HEAD
 
       <ClockWidget />
+=======
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
     </div>
   )
 }

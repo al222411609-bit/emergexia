@@ -15,6 +15,7 @@ export const MODULES = [
     columns: [
       { key: 'nombre', label: 'Nombre' },
       { key: 'especialidad', label: 'Especialidad' },
+<<<<<<< HEAD
       { key: 'celular', label: 'Celular' },
       { key: 'turno', label: 'Turno' },
       { key: 'estado', label: 'Estado', badge: true },
@@ -45,6 +46,16 @@ export const MODULES = [
         group: 'Verificación',
         hint: 'Se usa para verificar por reconocimiento facial que es el mismo doctor antes de asignarlo a una emergencia.',
       },
+=======
+      { key: 'telefono', label: 'Teléfono' },
+      { key: 'estado', label: 'Estado', badge: true },
+    ],
+    fields: [
+      { key: 'nombre', label: 'Nombre completo', required: true },
+      { key: 'especialidad', label: 'Especialidad', required: true },
+      { key: 'telefono', label: 'Teléfono' },
+      { key: 'estado', label: 'Estado', options: ['Activo', 'En guardia', 'Descanso'] },
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
     ],
   },
   {
@@ -78,15 +89,21 @@ export const MODULES = [
     nuevo: 'Nueva',
     columns: [
       { key: 'folio', label: 'Folio' },
+<<<<<<< HEAD
       { key: 'paciente_nombre', label: 'Paciente' },
       { key: 'descripcion', label: 'Descripción' },
       { key: 'prioridad', label: 'Prioridad', badge: true },
       { key: 'doctor', label: 'Doctor' },
       { key: 'operador', label: 'Operador' },
+=======
+      { key: 'descripcion', label: 'Descripción' },
+      { key: 'prioridad', label: 'Prioridad', badge: true },
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
       { key: 'ambulancia', label: 'Ambulancia' },
       { key: 'estado', label: 'Estado', badge: true },
     ],
     fields: [
+<<<<<<< HEAD
       // Datos del paciente
       { key: 'paciente_nombre', label: 'Nombre completo del paciente', required: true, group: 'Paciente' },
       { key: 'paciente_edad', label: 'Edad', group: 'Paciente' },
@@ -138,6 +155,12 @@ export const MODULES = [
         allowEmpty: true,
         emptyLabel: 'Sin ambulancia asignada',
       },
+=======
+      { key: 'descripcion', label: 'Descripción', required: true },
+      { key: 'prioridad', label: 'Prioridad', options: ['Alta', 'Media', 'Baja'] },
+      { key: 'ambulancia', label: 'Ambulancia asignada (placa)' },
+      { key: 'estado', label: 'Estado', options: ['Pendiente', 'Asignada', 'En curso', 'Cerrada'] },
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
     ],
   },
   {
@@ -159,6 +182,7 @@ export const MODULES = [
       { key: 'turno', label: 'Turno', options: ['Matutino', 'Vespertino', 'Nocturno'] },
       { key: 'extension', label: 'Extensión' },
       { key: 'estado', label: 'Estado', options: ['En línea', 'Desconectado'] },
+<<<<<<< HEAD
       {
         key: 'foto',
         label: 'Foto de referencia (rostro)',
@@ -166,6 +190,8 @@ export const MODULES = [
         required: true,
         hint: 'Se usa para verificar por reconocimiento facial que es el mismo operador antes de que salga una ambulancia.',
       },
+=======
+>>>>>>> ecb314e0be1671f363a199180d1176f6feb81edb
     ],
   },
   {
