@@ -34,23 +34,16 @@ DEFINITIONS: dict[str, dict] = {
     # Personal médico
     "doctors": {
         "validator": _schema(
-            {"id": NUM, "nombre": STR, "nombres": STR, "apellidos": STR, "celular": STR, "correo": STR,
-             "especialidad": STR, "estado": STR},
-            {"foto": [STR, "null"], "foto_verificada": "bool", "telefono": STR, "created_at": "date"},
+            {"id": NUM, "nombre": STR, "especialidad": STR, "estado": STR},
+            {"telefono": STR, "created_at": "date"},
         ),
-        "indexes": [("id", True), ("estado", False), ("correo", True)],
+        "indexes": [("id", True), ("estado", False)],
     },
     # Flota de ambulancias
     "ambulances": {
         "validator": _schema(
             {"id": NUM, "placa": STR, "tipo": STR, "estado": STR},
-            {
-                "conductor": STR, "created_at": "date",
-                "numero_unidad": STR, "modelo": STR, "anio": NUM, "kilometraje": NUM,
-                "equipamiento": "array", "base_asignada": STR,
-                "radio": STR, "tripulacion": "array",
-                "ultimo_mantenimiento": STR, "motivo_inactividad": STR,
-            },
+            {"conductor": STR, "created_at": "date"},
         ),
         "indexes": [("id", True), ("placa", True), ("estado", False)],
     },
@@ -58,30 +51,31 @@ DEFINITIONS: dict[str, dict] = {
     "emergencies": {
         "validator": _schema(
             {"id": NUM, "folio": STR, "descripcion": STR, "prioridad": STR, "estado": STR},
-            {
-                "ambulancia": [STR, "null"], "operador": [STR, "null"], "doctor": [STR, "null"],
-                "created_at": "date", "paramedicos": "array", "tipo_emergencia": STR,
-                "paciente_nombre": STR, "paciente_edad": [NUM, "null"], "paciente_genero": STR,
-                "paciente_telefono": STR, "sintomas": STR,
-                "direccion": STR, "hospital_destino": STR, "despacho": ["object", "null"],
-            },
+            {"ambulancia": [STR, "null"], "created_at": "date"},
         ),
         "indexes": [("id", True), ("folio", True), ("estado", False), ("created_at", False)],
     },
     # Operadores de la central
     "operators": {
         "validator": _schema(
-            {"id": NUM, "nombre": STR, "nombres": STR, "apellidos": STR, "celular": STR, "correo": STR,
-             "turno": STR, "estado": STR},
-            {
-                "foto": [STR, "null"], "foto_verificada": "bool", "extension": STR, "created_at": "date",
-                "curp": STR, "pin_hash": [STR, "null"], "rol": STR,
-                "centro_control": STR, "cabina": STR, "idiomas": "array", "certificaciones": "array",
-                "contacto_emergencia_nombre": STR, "contacto_emergencia_telefono": STR, "parentesco": STR,
-                "tipo_sangre": STR, "alergias": STR,
-            },
+            {"id": NUM, "nombre": STR, "turno": STR, "estado": STR},
+            # "foto" no es requerida aquí (a nivel de MongoDB) para no romper
+            # operadores que ya existían antes de esta función; la API
+            # (schemas.py) sí la exige para operadores nuevos.
+            {"extension": STR, "foto": STR, "created_at": "date"},
         ),
-        "indexes": [("id", True), ("estado", False), ("correo", True)],
+        "indexes": [("id", True), ("estado", False)],
+    },
+    # Bitácora de verificaciones por reconocimiento facial: queda registro de
+    # cada vez que se comparó la cara de un operador contra su foto de
+    # referencia, al asignarlo a una emergencia y al confirmar la salida de
+    # la ambulancia.
+    "verificaciones": {
+        "validator": _schema(
+            {"operador": STR, "contexto": STR, "coincide": "bool"},
+            {"distancia": NUM, "emergencia_folio": [STR, "null"], "verificado_por": STR, "momento": "date"},
+        ),
+        "indexes": [("operador", False), ("momento", False)],
     },
     # Contadores internos para los id autoincrementales (sin validación)
     "counters": {"validator": None, "indexes": []},

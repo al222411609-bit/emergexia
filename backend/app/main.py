@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import readiness
 from .config import settings
 from .mongo import close_client
-from .routers import auth, modules, system
+from .routers import auth, modules, system, verificaciones
 from .spark import stop_spark
 
 logging.basicConfig(level=logging.INFO)
@@ -40,6 +40,7 @@ app.include_router(auth.router, dependencies=[Depends(readiness.require_mongo)])
 app.include_router(system.router)
 for r in modules.routers:
     app.include_router(r, dependencies=[Depends(readiness.require_mongo)])
+app.include_router(verificaciones.router, dependencies=[Depends(readiness.require_mongo)])
 
 
 @app.get("/api/health")

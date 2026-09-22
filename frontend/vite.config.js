@@ -34,7 +34,6 @@ export default defineConfig(({ mode }) => {
   const target = process.env.VITE_API_TARGET || env.VITE_API_TARGET || 'http://127.0.0.1:8000'
   return {
     plugins: [react(), backendCheck(target)],
-    // strictPort: si 5173 está ocupado (otra copia vieja del frontend), falla en vez de saltar a otro puerto en silencio.
-    server: { port: 5173, strictPort: true, proxy: { '/api': target } },
+    server: { port: 5173, proxy: { '/api': target } },
   }
 })

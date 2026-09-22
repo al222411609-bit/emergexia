@@ -174,7 +174,6 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 .banner-text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
 .banner-text strong { font-size: 12.5px; color: var(--red-700); }
 .banner-text span { font-size: 11px; color: var(--muted); }
-.banner-clock { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--muted); text-align: right; color: var(--red-800); }
 
 /* ───────── Módulos ───────── */
 .view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
@@ -192,14 +191,42 @@ tbody tr:hover { background: #fcfcfd; }
 .b-en-guardia, .b-en-servicio, .b-en-curso, .b-media, .b-asignada { background: #fff2dc; color: #a0630a; }
 .b-alta, .b-mantenimiento, .b-pendiente { background: var(--red-100); color: var(--red-800); }
 .b-descanso, .b-desconectado { background: #ececf1; color: #5b5b68; }
-.b-baja-verde, .b-atendida { background: #e5f6ec; color: #1a7a41; }
-.b-alta-amarilla, .b-en-sitio, .b-trasladando { background: #fff2dc; color: #a0630a; }
-.b-critica-roja, .b-fuera-de-servicio, .b-en-camino { background: var(--red-100); color: var(--red-800); }
-.b-cancelada { background: #ececf1; color: #5b5b68; }
 
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 16px; }
 .field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; }
 .wide { grid-column: 1 / -1; }
+
+.form-group-title {
+  grid-column: 1 / -1;
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--muted); margin: 4px 0 -4px; padding-top: 10px; border-top: 1px solid var(--border, #e5e5ea);
+}
+.form-group-title:first-child { border-top: none; padding-top: 0; }
+.field-hint { font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+.field-hint.warn { color: #8a5408; }
+.field-hint.ok { color: #1a7a41; display: flex; align-items: center; gap: 5px; }
+
+/* ───────── Foto de referencia / verificación facial ───────── */
+.photo-field { display: flex; align-items: center; gap: 10px; }
+.photo-thumb { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--line); }
+.btn-ghost.icon { width: 32px; padding: 0; justify-content: center; }
+
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 50; background: rgba(23, 23, 28, .55);
+  display: grid; place-items: center; padding: 20px;
+}
+.modal.face-modal { width: min(420px, 100%); box-shadow: 0 20px 50px rgba(0,0,0,.3); }
+.modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.modal-head h3 { font-size: 15px; font-weight: 700; }
+.face-frame {
+  width: 100%; aspect-ratio: 4 / 3; border-radius: 10px; overflow: hidden;
+  background: #17171c; display: grid; place-items: center;
+}
+.face-frame video, .face-frame img { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.face-message { display: flex; align-items: center; gap: 6px; font-size: 12.5px; margin-top: 10px; color: var(--muted); }
+.face-message.ok { color: #1a7a41; }
+.face-message.fail, .face-message.error { color: var(--red-700); }
+.face-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
 
 .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; align-items: start; }
 .panel-title { font-size: 14px; font-weight: 700; margin-bottom: 14px; }
@@ -208,6 +235,83 @@ tbody tr:hover { background: #fcfcfd; }
 .kv { display: grid; grid-template-columns: 130px 1fr; gap: 10px 12px; margin: 0; }
 .kv dt { color: var(--muted); }
 .kv dd { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+
+/* ───────── Filas clicables (ir al perfil) ───────── */
+.row-link { cursor: pointer; transition: background-color .12s; }
+.row-link:hover { background: var(--red-50); }
+.row-link:focus-visible { outline: 2px solid var(--red-600); outline-offset: -2px; }
+.row-link-arrow { width: 28px; text-align: center; color: var(--muted); font-size: 16px; font-weight: 700; }
+.row-link:hover .row-link-arrow { color: var(--red-700); }
+
+/* ───────── Pantalla dedicada: nuevo registro / perfil ───────── */
+.record-screen { display: flex; flex-direction: column; gap: 18px; width: min(920px, 100%); margin: 0 auto; padding-bottom: 24px; }
+.record-screen-head { display: flex; align-items: center; gap: 14px; }
+.btn-back {
+  display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 50%;
+  background: #fff; border: 1px solid var(--line); color: var(--ink); box-shadow: var(--shadow);
+  transition: border-color .15s, color .15s, transform .05s;
+}
+.btn-back:hover { border-color: var(--red-500); color: var(--red-700); }
+.btn-back:active { transform: translateY(1px); }
+.record-screen-icon {
+  display: grid; place-items: center; flex: none; width: 44px; height: 44px; border-radius: 12px;
+  background: var(--red-100); color: var(--red-700);
+}
+.record-screen-title { min-width: 0; }
+.record-screen-eyebrow { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--red-700); }
+.record-screen-title h1 { font-size: 21px; font-weight: 700; letter-spacing: -.01em; margin-top: 2px; }
+.record-screen-title p { color: var(--muted); margin-top: 3px; font-size: 13px; }
+
+.record-form { display: flex; flex-direction: column; gap: 14px; }
+.form-section-title {
+  font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  color: var(--red-700); margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+.record-form-actions { position: sticky; bottom: 0; padding-top: 6px; }
+.record-form-actions-row {
+  display: flex; justify-content: flex-end; gap: 10px; align-items: center;
+  background: rgba(255,255,255,.9); backdrop-filter: blur(6px);
+  border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 12px 14px;
+}
+.record-form-actions-row .btn-primary.compact { min-width: 160px; }
+.record-form-actions .form-error { margin-bottom: 10px; }
+
+/* ───────── Perfil (ver operador / ambulancia / doctor / emergencia) ───────── */
+.profile-hero { display: flex; gap: 18px; align-items: center; }
+.profile-avatar {
+  flex: none; width: 76px; height: 76px; border-radius: 50%; overflow: hidden;
+  display: grid; place-items: center; color: #fff;
+  background: linear-gradient(160deg, var(--red-600), var(--red-800));
+  box-shadow: 0 8px 18px rgba(179,17,31,.25);
+}
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-hero-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.profile-hero-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.profile-hero-kv { grid-template-columns: 100px 1fr; gap: 5px 10px; font-size: 12.5px; }
+.profile-hero-kv dt { font-size: 11.5px; }
+.profile-hero-date { display: inline-flex; align-items: center; gap: 5px; }
+
+.profile-sections { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; align-items: start; }
+.profile-sections.single { grid-template-columns: 1fr; }
+.profile-kv { grid-template-columns: 160px 1fr; }
+.profile-link {
+  display: inline-flex; align-items: center; gap: 5px; color: var(--red-700); font-weight: 600;
+  text-decoration: none; padding: 2px 4px; margin: -2px -4px; border-radius: 6px;
+}
+.profile-link:hover { background: var(--red-50); text-decoration: underline; }
+
+/* ───────── Reloj flotante global ───────── */
+.clock-widget {
+  position: fixed; right: 20px; bottom: 20px; z-index: 40;
+  display: flex; align-items: center; gap: 10px;
+  background: linear-gradient(180deg, var(--red-700), var(--red-800));
+  color: #fff; border-radius: 999px; padding: 9px 16px 9px 12px;
+  box-shadow: 0 10px 24px rgba(23,23,28,.22), 0 2px 6px rgba(23,23,28,.12);
+}
+.clock-widget-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,.16); }
+.clock-widget-text { display: flex; flex-direction: column; line-height: 1.25; }
+.clock-widget-text strong { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.clock-widget-text small { font-size: 10.5px; color: rgba(255,255,255,.85); text-transform: capitalize; }
 
 /* ───────── Responsive ───────── */
 @media (max-width: 900px) {
@@ -228,56 +332,14 @@ tbody tr:hover { background: #fcfcfd; }
   .topbar { padding: 10px 16px; }
   .user-meta { display: none; }
   .view-head { flex-direction: column; align-items: flex-start; }
+  .profile-hero { flex-direction: column; align-items: flex-start; }
+  .clock-widget { right: 12px; bottom: 12px; padding: 7px 12px 7px 9px; }
 }
-@media (max-width: 480px) { .module-grid { grid-template-columns: 1fr; } .banner-clock { display: none; } }
+@media (max-width: 480px) {
+  .module-grid { grid-template-columns: 1fr; }
+  .clock-widget-text small { display: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
-
-/* ───────── Pantalla de carga ───────── */
-.loading-screen {
-  position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
-  background: linear-gradient(160deg, var(--red-600) 0%, var(--red-800) 55%, var(--red-900) 100%);
-  color: #fff;
-}
-.loading-text { font-size: 15px; font-weight: 600; letter-spacing: .02em; opacity: .95; }
-.loading-ecg { position: static; left: auto; right: auto; bottom: auto; width: min(420px, 70vw); height: 140px; filter: drop-shadow(0 0 6px rgba(255,255,255,.5)); opacity: .95; }
-
-/* ───────── Ficha de persona (Doctores / Operadores) ───────── */
-.form-page-title { font-size: 22px; font-weight: 700; letter-spacing: -.02em; margin: 14px 0 4px; }
-.view-head .btn-ghost { margin-bottom: 4px; }
-.person-form { display: grid; grid-template-columns: 220px 1fr; gap: 28px; align-items: start; }
-.person-form-photo label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
-.person-form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 16px; align-content: start; }
-.person-form .wide { grid-column: 1 / -1; }
-@media (max-width: 640px) { .person-form { grid-template-columns: 1fr; } }
-.form-section { margin: 6px 0 -4px; font-size: 13px; font-weight: 700; color: var(--red-700); text-transform: uppercase; letter-spacing: .03em; border-top: 1px solid var(--line); padding-top: 14px; }
-.form-section:first-child { border-top: none; padding-top: 0; }
-.checkbox-group { display: flex; flex-wrap: wrap; gap: 6px 16px; padding: 6px 0; }
-.checkbox-option { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 400; }
-.form-buttons { display: flex; gap: 10px; }
-.spin { animation: spin 1s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-.face-modal-backdrop { position: fixed; inset: 0; background: rgba(15,15,20,.55); display: flex; align-items: center; justify-content: center; z-index: 50; padding: 16px; }
-.face-modal { background: #fff; border-radius: 14px; padding: 22px; width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 12px; }
-.face-modal video, .face-modal img.face-ref { width: 100%; border-radius: 10px; background: #111; }
-.face-modal-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.face-modal-status { font-weight: 600; text-align: center; padding: 8px; border-radius: 8px; }
-.face-modal-status.ok { background: #e6f7ec; color: #1a7a3f; }
-.face-modal-status.fail { background: #fdeaea; color: var(--red-700); }
-.face-modal-status.pending { background: #f2f2f4; color: #555; }
-
-.photo-capture { display: flex; flex-direction: column; gap: 10px; }
-.photo-preview {
-  width: 168px; height: 168px; border-radius: 12px; overflow: hidden; background: var(--field);
-  display: grid; place-items: center; color: #b7b7c2; border: 1px dashed var(--line);
-}
-.photo-preview img, .photo-preview video { width: 100%; height: 100%; object-fit: cover; }
-.photo-actions { display: flex; flex-wrap: wrap; gap: 8px; }
-.small { font-size: 11.5px; }
-
-/* Miniatura de foto en las tablas de Doctores / Operadores */
-.row-photo { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; display: block; }
-.row-photo-empty { background: var(--field); border: 1px solid var(--line); }
-table th:first-child, table td:first-child { width: 46px; }

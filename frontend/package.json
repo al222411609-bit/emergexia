@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.1.0",
+    "face-api.js": "^0.22.2",
     "lottie-web": "^5.13.0",
     "lucide-react": "^0.460.0",
     "react": "^18.3.1",

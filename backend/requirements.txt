@@ -5,4 +5,3 @@ PyJWT==2.10.1
 python-dotenv==1.0.1
 pydantic==2.10.4
 pymongo==4.10.1
-email-validator==2.2.0
