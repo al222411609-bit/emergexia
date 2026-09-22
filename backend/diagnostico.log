@@ -1,0 +1,11 @@
+  [OK]  Python 3.12.3  (linux)
+  [OK]  Paquetes de Python instalados
+  [!]   Tienes PySpark 3.5.3; el proyecto está probado con 4.0.1
+         → Ejecuta: pip install -r requirements.txt   para igualar la versión probada
+  [OK]  Java encontrado: openjdk version "21.0.12" 2026-07-21
+  [OK]  El backend responde en el puerto 8000
+  [OK]  El backend está conectado a MongoDB
+  [OK]  MongoDB 8.0.32 conectado en mongodb+srv://al222411609_db_user:***@cluster0.hujbcuw.mongodb.net/emergexia?appName=Cluster0
+  [OK]  Base de datos de la app: 'emergexia' → {'ambulances': 0, 'doctors': 0, 'emergencies': 0, 'operators': 0, 'users': 1}
+  [OK]  Spark 3.5.0 arrancó (master: local[*])
+  [OK]  Spark pudo escribir y leer datos (1 fila)
